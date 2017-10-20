@@ -11,27 +11,23 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.0.M4</version>
+        <!--<version>2.0.0.M4</version>-->
+        <version>1.5.8.RELEASE</version>
     </parent>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+        <validation-api.version>1.1.0.Final</validation-api.version>
+        <hibernate-validator.version>5.4.1.Final</hibernate-validator.version>
+        <!--<hibernate-validator.version>6.0.2.Final</hibernate-validator.version>-->
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -48,5 +44,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <!--<repositories>-->
+        <!--<repository>-->
+            <!--<id>repository.spring.milestone</id>-->
+            <!--<name>Spring Milestone Repository</name>-->
+            <!--<url>http://repo.spring.io/milestone</url>-->
+        <!--</repository>-->
+    <!--</repositories>-->
 
 </project>

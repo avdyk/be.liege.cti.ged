@@ -1,5 +1,6 @@
 package be.liege.ged.apix.test;
 
+import be.liege.ged.apix.vdl.impl.AlfredConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -8,27 +9,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.support.BasicAuthorizationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
-@SpringBootApplication
+//@SpringBootApplication
 public class SearchExampleApp {
 
-    private static final Logger log = LoggerFactory.getLogger(SearchExampleApp.class);
+    private static final Logger logger = LoggerFactory.getLogger(SearchExampleApp.class);
 
     private final String alfredUrl;
     private final String alfredUsername;
     private final String alfredPassword;
 
-    public SearchExampleApp(@Value(AlfredProperties.ALFRESCO_URL) final String alfredUrl,
-                            @Value(AlfredProperties.ALFRESCO_USERNAME) final String alfredUsername,
-                            @Value(AlfredProperties.ALFRESCO_PASSWORD) final String alfredPassword) {
-        log.debug("alfred.url: {}", alfredUrl);
+    public SearchExampleApp(@Value(ApixTestProperties.ALFRESCO_URL) final String alfredUrl,
+                            @Value(ApixTestProperties.ALFRESCO_USERNAME) final String alfredUsername,
+                            @Value(ApixTestProperties.ALFRESCO_PASSWORD) final String alfredPassword) {
+        logger.debug("alfred.url: {}", alfredUrl);
         this.alfredUrl = alfredUrl;
         this.alfredUsername = alfredUsername;
         this.alfredPassword = alfredPassword;
@@ -39,29 +38,29 @@ public class SearchExampleApp {
         SpringApplication.run(SearchExampleApp.class);
     }
 
-    @Bean
+    //@Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         return builder.build();
     }
 
-    @Bean
+    //@Bean
     public CommandLineRunner run(RestTemplate restTemplate) {
         return args -> {
             restTemplate.getInterceptors().add(
                     new BasicAuthorizationInterceptor(alfredUsername, alfredPassword));
             final ObjectNode body = getAllCategoryMissionWithFacets();
-            log.debug("query body: {}", body.toString());
+            logger.debug("query body: {}", body.toString());
             final ResponseEntity<ObjectNode> objectNodeResponseEntity =
-                    restTemplate.postForEntity(alfredUrl + "/v1/search", body, ObjectNode.class);
+                    restTemplate.postForEntity(alfredUrl + AlfredConstants.SEARCH, body, ObjectNode.class);
             if (objectNodeResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
                 final ObjectNode bodyResponse = objectNodeResponseEntity.getBody();
                 final JsonNode nodeRefs = bodyResponse.get("noderefs");
                 nodeRefs.elements()
                         .forEachRemaining(node -> {
-                            log.info("{}: {}", node, getNodeName(restTemplate, node.asText()));
+                            logger.info("{}: {}", node, getNodeName(restTemplate, node.asText()));
                         });
             } else {
-                log.warn("Problème pour retrouver les informations: {}", objectNodeResponseEntity.getStatusCode());
+                logger.warn("Problème pour retrouver les informations: {}", objectNodeResponseEntity.getStatusCode());
             }
         };
     }
@@ -75,14 +74,14 @@ public class SearchExampleApp {
         final String store = splitSlashes[0];
         // guid
         final String guid = splitSlashes[1];
-        log.debug("node: {}; space: {}; store: {}; guid: {}", node, space, store, guid);
+        logger.debug("node: {}; space: {}; store: {}; guid: {}", node, space, store, guid);
         final String queryUrl = String.format("%s/v1/nodes/%s/%s/%s", alfredUrl, space, store, guid);
-        log.debug("Requête pour retrouver les noeuds: {}", queryUrl);
+        logger.debug("Requête pour retrouver les noeuds: {}", queryUrl);
         final ObjectNode response = restTemplate.getForObject(queryUrl, ObjectNode.class);
         final JsonNode metadata = response.get("metadata");
         final JsonNode properties = metadata.get("properties");
         final JsonNode propertyNames = properties.get("{http://www.alfresco.org/model/content/1.0}name").get(0);
-        log.debug("Nom du noeud: {}", propertyNames.asText());
+        logger.debug("Nom du noeud: {}", propertyNames.asText());
         return propertyNames.asText();
     }
 
