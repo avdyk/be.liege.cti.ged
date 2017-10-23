@@ -2,8 +2,12 @@ package be.liege.cti.ged.test.search;
 
 import be.liege.cti.ged.api.AlfredConfiguration;
 import be.liege.cti.ged.api.AlfredConstants;
+import be.liege.cti.ged.api.AlfredService;
 import be.liege.cti.ged.api.AlfredServiceFactory;
 import be.liege.cti.ged.api.NodeReference;
+import be.liege.cti.ged.api.search.AlfredQuery;
+import be.liege.cti.ged.api.search.AlfredSearch;
+import be.liege.cti.ged.api.search.AlfredSearchBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,10 +36,10 @@ public class SearchCategories {
     private final String alfredPassword;
     private final AlfredServiceFactory alfredServiceFactory;
 
-    public SearchCategories(@Value(ApixTestProperties.ALFRESCO_URL) final String alfredUrl,
+    public SearchCategories(final AlfredServiceFactory alfredServiceFactory,
+                            @Value(ApixTestProperties.ALFRESCO_URL) final String alfredUrl,
                             @Value(ApixTestProperties.ALFRESCO_USERNAME) final String alfredUsername,
-                            @Value(ApixTestProperties.ALFRESCO_PASSWORD) final String alfredPassword,
-                            final AlfredServiceFactory alfredServiceFactory) {
+                            @Value(ApixTestProperties.ALFRESCO_PASSWORD) final String alfredPassword) {
         this.alfredServiceFactory = alfredServiceFactory;
         logger.debug("alfred.url: {}", alfredUrl);
         this.alfredUrl = alfredUrl;
@@ -58,21 +62,41 @@ public class SearchCategories {
         return args -> {
             restTemplate.getInterceptors().add(
                     new BasicAuthorizationInterceptor(alfredUsername, alfredPassword));
-            final ObjectNode body = getAllCategoryMissionWithFacets();
-            logger.debug("query body: {}", body.toString());
-            final ResponseEntity<ObjectNode> objectNodeResponseEntity =
-                    restTemplate.postForEntity(alfredUrl + AlfredConstants.SEARCH, body, ObjectNode.class);
-            if (objectNodeResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
-                final ObjectNode bodyResponse = objectNodeResponseEntity.getBody();
-                final JsonNode nodeRefs = bodyResponse.get("noderefs");
-                nodeRefs.elements()
-                        .forEachRemaining(node -> {
-                            logger.info("{}: {}", node, getNodeName(restTemplate, node.asText()));
-                        });
-            } else {
-                logger.warn("Problème pour retrouver les informations: {}", objectNodeResponseEntity.getStatusCode());
-            }
+            // oldSchool(restTemplate);
+            newSchool(restTemplate);
         };
+    }
+
+    private void newSchool(RestTemplate restTemplate) {
+        final AlfredService alfredService = alfredServiceFactory.createAlfredServiceBuilder()
+                .url(alfredUrl)
+                .username(alfredUsername)
+                .password(alfredPassword);
+        final AlfredSearchBuilder alfredSearchBuilder = alfredService.searchBuilder();
+        final AlfredQuery pathQuery = alfredSearchBuilder.query()
+                .path("/cm:categoryRoot/vdl:vdlmission/*");
+        final AlfredSearch alfredSearch = alfredSearchBuilder.query(pathQuery)
+                .build();
+        alfredSearch.nodeReferences()
+                    .map(nodeReference -> getNodeName(restTemplate, nodeReference.getNodeReference()))
+                .forEach(nodeR -> logger.info("{}", nodeR));
+    }
+
+    private void oldSchool(RestTemplate restTemplate) {
+        final ObjectNode body = getAllCategoryMissionWithFacets();
+        logger.debug("query body: {}", body.toString());
+        final ResponseEntity<ObjectNode> objectNodeResponseEntity =
+                restTemplate.postForEntity(alfredUrl + AlfredConstants.SEARCH, body, ObjectNode.class);
+        if (objectNodeResponseEntity.getStatusCode().equals(HttpStatus.OK)) {
+            final ObjectNode bodyResponse = objectNodeResponseEntity.getBody();
+            final JsonNode nodeRefs = bodyResponse.get("noderefs");
+            nodeRefs.elements()
+                    .forEachRemaining(node -> {
+                        logger.info("{}: {}", node, getNodeName(restTemplate, node.asText()));
+                    });
+        } else {
+            logger.warn("Problème pour retrouver les informations: {}", objectNodeResponseEntity.getStatusCode());
+        }
     }
 
     private String getNodeName(final RestTemplate restTemplate, final String node) {

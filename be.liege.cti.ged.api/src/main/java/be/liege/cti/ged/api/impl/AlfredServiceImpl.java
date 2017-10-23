@@ -3,10 +3,12 @@ package be.liege.cti.ged.api.impl;
 import be.liege.cti.ged.api.AlfredConstants;
 import be.liege.cti.ged.api.AlfredDocument;
 import be.liege.cti.ged.api.AlfredPath;
+import be.liege.cti.ged.api.search.AlfredSearchBuilder;
 import be.liege.cti.ged.api.AlfredService;
 import be.liege.cti.ged.api.NodeReference;
 import be.liege.cti.ged.api.NodeReferenceBuilder;
 import be.liege.cti.ged.api.PathNotFoundException;
+import be.liege.cti.ged.api.impl.search.SearchBuilderImpl;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
@@ -46,6 +48,11 @@ public class AlfredServiceImpl implements AlfredService {
                       final String url,
                       final String username) {
         this(restTemplateBuilder, nodeReferenceBuilder, url, username, null);
+    }
+
+    @Override
+    public AlfredSearchBuilder searchBuilder() {
+        return new SearchBuilderImpl(nodeReferenceBuilder, url, restTemplate);
     }
 
     @Override
