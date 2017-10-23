@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <logger name="be.liege.ged.apix.vdl" level="info"/>
-    <logger name="be.liege.ged.apix.test" level="info"/>
-    <logger name="be.liege.ged.apix.test.InsertNewImageExampleApp" level="info"/>
-</configuration>

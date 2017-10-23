@@ -4,15 +4,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>be.liege.ged.apix</groupId>
-    <artifactId>root</artifactId>
+    <groupId>be.liege.cti.ged</groupId>
+    <artifactId>be.liege.cti.ged</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>be.liege.ged.apix.vdl.api</module>
-        <module>be.liege.ged.apix.test/search</module>
-        <module>be.liege.ged.apix.test/insert</module>
+        <module>be.liege.cti.ged.api</module>
+        <module>be.liege.cti.ged.test/vdl-ged-test-search</module>
+        <module>be.liege.cti.ged.test/vdl-ged-test-insert</module>
     </modules>
 
 </project>
