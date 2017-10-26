@@ -17,6 +17,8 @@ public interface AlfredSearchBuilder {
 
     AlfredOrderByBuilder orderBy();
 
+    AlfredRangeBuilder range();
+
     AlfredCompositeQueryBuilder query();
 
     AlfredSearchBuilder query(final AlfredQuery query);

@@ -5,14 +5,18 @@ import be.liege.cti.ged.api.search.AlfredCompositeQueryBuilder;
 import be.liege.cti.ged.api.search.AlfredOrderBy;
 import be.liege.cti.ged.api.search.AlfredOrderByBuilder;
 import be.liege.cti.ged.api.search.AlfredQuery;
+import be.liege.cti.ged.api.search.AlfredRangeBuilder;
 import be.liege.cti.ged.api.search.AlfredSearch;
 import be.liege.cti.ged.api.search.AlfredSearchBuilder;
+import be.liege.cti.ged.api.search.RangeWithStartDate;
+import be.liege.cti.ged.api.search.RangeWithStartInt;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +89,21 @@ public class SearchBuilderImpl implements AlfredSearchBuilder {
             public AlfredSearchBuilder build() {
                 SearchBuilderImpl.this.orderByList = this.orderByList;
                 return SearchBuilderImpl.this;
+            }
+        };
+    }
+
+    @Override
+    public AlfredRangeBuilder range() {
+        return new AlfredRangeBuilder() {
+            @Override
+            public RangeWithStartInt start(int start) {
+                return end -> new RangeIntImpl(start, end);
+            }
+
+            @Override
+            public RangeWithStartDate start(LocalDateTime start) {
+                return end -> new RangeDateImpl(start, end);
             }
         };
     }
